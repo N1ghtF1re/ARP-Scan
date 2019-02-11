@@ -5,14 +5,16 @@ import (
 	"encoding/binary"
 	"errors"
 	"fmt"
+	"github.com/j-keck/arping"
 	"net"
+	"os"
 	"strconv"
 )
-func resolveHostIp() (string, error) {
+func resolveHostIpAndMask() (string, string, error) {
 
 	netInterfaceAddresses, err := net.InterfaceAddrs()
 
-	if err != nil { return "", err }
+	if err != nil { return "", "", err }
 
 	for _, netInterfaceAddress := range netInterfaceAddresses {
 
@@ -21,11 +23,12 @@ func resolveHostIp() (string, error) {
 		if ok && !networkIp.IP.IsLoopback() && networkIp.IP.To4() != nil {
 
 			ip := networkIp.IP.String()
+			mask := net.IP(networkIp.Mask).String()
 
-			return ip, nil
+			return ip, mask, nil
 		}
 	}
-	return "", errors.New("IP Not Found")
+	return "", "", errors.New("IP Not Found")
 }
 
 func ip2Long(ip string) uint32 {
@@ -70,8 +73,20 @@ func getIps(strMask, strIp string) []string {
 }
 
 func main() {
-	strIp, err := resolveHostIp()
-	strMask := "255.255.255.0"
+	args := os.Args[1:]
+
+	strIp, strMask, err := resolveHostIpAndMask()
+
+	switch len(args) {
+		case 1: {
+
+		}
+		case 2: {
+
+		}
+	}
+
+
 
 	if !isMaskValid(strMask) {
 		fmt.Println("Invalid mask")
@@ -85,7 +100,10 @@ func main() {
 	ips := getIps(strMask, strIp)
 
 	for _, ip := range ips {
-		fmt.Println(ip)
+		dstIP := net.ParseIP(ip)
+		if hwAddr, _, err := arping.Ping(dstIP); err == nil {
+			fmt.Printf("%s : %s\n", dstIP, hwAddr)
+		}
 	}
 
 
