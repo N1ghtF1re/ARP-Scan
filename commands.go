@@ -33,7 +33,11 @@ func arp(ip string) (Node, error) {
 	}
 
 	cols := strings.Split(strout, " ")
-	node.name = cols[0]
+	if cols[0] == "?" {
+		node.name = "Undefined"
+	} else {
+		node.name = cols[0]
+	}
 	node.ip = ip
 	node.mac = cols[3]
 

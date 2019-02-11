@@ -10,21 +10,17 @@ type Node struct {
 	ip string
 	mac string
 }
-// CONSTANTS
-const colSize = 20
-const rowStr = "|%-20s|%-20s|%-20s|\n"
 
 
 
-func atMiddle(s string) string{
-	return fmt.Sprintf("%[1]*s", -colSize, fmt.Sprintf("%[1]*s", (colSize + len(s))/2, s))
-}
 
 func main() {
 
 	args := os.Args[1:]
 
 	strIp, strMask, err := getIpAndMask()
+
+	file := os.Stdout
 
 	switch len(args) {
 		case 1: {
@@ -36,7 +32,6 @@ func main() {
 	}
 
 
-
 	if !maskValid(strMask) {
 		fmt.Println("Invalid mask")
 		return
@@ -46,16 +41,18 @@ func main() {
 		return
 	}
 
-	fmt.Printf("My computer:\nIP: %s, mac-adress: %s\n\n", strIp, getMacAddr())
+	_, _ = fmt.Fprintf(file, "My computer:\nIP: %s, mac-adress: %s\n\n", strIp, getMacAddr())
 
 	ips := getIps(strMask, strIp)
 
+	drawHeader(file)
 	for _, ip := range ips {
 		ping(ip)
 		node, err := arp(ip)
 		if err == nil{
-			fmt.Printf(rowStr, atMiddle(node.ip), atMiddle(node.mac), atMiddle(node.name))
+			drawRow(file, node)
 		}
 	}
+	drawSplitter(file)
 
 }
