@@ -7,6 +7,9 @@ import (
 	"strconv"
 )
 
+/**
+	Получение мак адреса компьютера
+ */
 func getMacAddr() (addr string) {
 	interfaces, err := net.Interfaces()
 	if err == nil {
@@ -21,6 +24,9 @@ func getMacAddr() (addr string) {
 	return
 }
 
+/**
+	Получение массива пар айпи, маска всех доступных сетевых инетрфейсов
+ */
 func getIpAndMask() ([]IpAndMask, error) {
 
 	netInterfaceAddresses, err := net.InterfaceAddrs()
@@ -74,6 +80,9 @@ func maskValid(ip string) bool{
 	return true
 }
 
+/**
+	Массив IP, соотвествующих текущей подсети
+ */
 func getIps(strMask, strIp string) []string {
 	var arr []string
 	maskInt := ip2Long(strMask)

@@ -11,7 +11,7 @@ func ping(ip string) {
 	//fmt.Printf("pinging %s\n", ip)
 	cmd := exec.Command("ping", "-c", "1", "-w", "1", ip)
 
-	cmd.Run()
+	_ = cmd.Run()
 }
 
 func arp(ip string) (Node, error) {
