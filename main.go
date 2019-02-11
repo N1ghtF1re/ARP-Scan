@@ -23,7 +23,6 @@ func check(e error) {
 	}
 }
 
-
 func parseArgs(args []string) (string, string, error){
 	newmask := ""
 	newfile := ""
@@ -37,7 +36,10 @@ func parseArgs(args []string) (string, string, error){
 			newmask = args[i+1]
 		case "-o":
 			newfile = args[i+1]
+		default:
+			panic("Invalid argument: " + args[i])
 		}
+
 	}
 
 	return newmask, newfile, nil
@@ -79,7 +81,7 @@ func main() {
 
 		if !maskValid(strMask) {panic("Invalid mask")}
 
-		_, _ = fmt.Fprintf(file, "My computer:\nIP: %s, mac-adress: %s\n\n", strIp, getMacAddr())
+		_, _ = fmt.Fprintf(file, "My computer:\nIP: %s, mac-address: %s\n\n", strIp, getMacAddr())
 
 		ips := getIps(strMask, strIp)
 
