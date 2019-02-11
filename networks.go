@@ -3,7 +3,6 @@ package main
 import (
 	"bytes"
 	"encoding/binary"
-	"errors"
 	"net"
 	"strconv"
 )
@@ -22,11 +21,13 @@ func getMacAddr() (addr string) {
 	return
 }
 
-func getIpAndMask() (string, string, error) {
+func getIpAndMask() ([]IpAndMask, error) {
 
 	netInterfaceAddresses, err := net.InterfaceAddrs()
 
-	if err != nil { return "", "", err }
+	var arr []IpAndMask
+
+	if err != nil { return arr, err }
 
 	for _, netInterfaceAddress := range netInterfaceAddresses {
 
@@ -37,10 +38,14 @@ func getIpAndMask() (string, string, error) {
 			ip := networkIp.IP.String()
 			mask := net.IP(networkIp.Mask).String()
 
-			return ip, mask, nil
+			var node IpAndMask
+			node.ip = ip
+			node.mask = mask
+
+			arr = append(arr, node)
 		}
 	}
-	return "", "", errors.New("IP Not Found")
+	return arr, nil
 }
 
 func ip2Long(ip string) uint32 {
