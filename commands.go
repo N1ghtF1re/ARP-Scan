@@ -7,15 +7,24 @@ import (
 	"strings"
 )
 
-func ping(ip string) {
+/**
+	Return true if node responds
+ */
+func ping(ip string) bool{
 	//fmt.Printf("pinging %s\n", ip)
 	cmd := exec.Command("ping", "-c", "1", "-w", "1", ip)
 
+	bout, _ := cmd.Output()
 	_ = cmd.Run()
+
+	out := fmt.Sprintf("%s", bout)
+	return !strings.Contains(out, "0 received")
 }
 
 func arp(ip string) (Node, error) {
 	var node Node
+
+	//fmt.Printf("ARP %s\n", ip)
 
 	cmdArp := exec.Command("arp", "-a", ip)
 	out, err := cmdArp.Output()
@@ -23,6 +32,7 @@ func arp(ip string) (Node, error) {
 	_ = cmdArp.Run()
 
 	strout := strings.Replace(fmt.Sprintf("%s", out) , "\n", "", 1)
+
 
 	if strings.Contains(strout, "<incomplete>") {
 		return node, errors.New("Incomplete mac address ")

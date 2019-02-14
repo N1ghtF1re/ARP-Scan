@@ -4,6 +4,8 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"os/user"
+	"sync"
 )
 
 type Node struct {
@@ -79,21 +81,42 @@ func main() {
 		strMask := el.mask
 		strIp := el.ip
 
+		_, _ = fmt.Fprintf(file, "Mask: %s\n\n", strMask)
+
+
 		if !maskValid(strMask) {panic("Invalid mask")}
 
-		_, _ = fmt.Fprintf(file, "My computer:\nIP: %s, mac-address: %s\n\n", strIp, getMacAddr())
+		usr, _ := user.Current()
+		_, _ = fmt.Fprintf(file, "My computer:\nIP: %s, mac-address: %s, name: %s\n\n", strIp, getMacAddr(), usr.Name)
 
 		ips := getIps(strMask, strIp)
 
 		drawHeader(file)
+
+
+
+		var wg sync.WaitGroup
+
 		for _, ip := range ips {
-			ping(ip)
-			node, err := arp(ip)
-			if err == nil {
-				drawRow(file, node)
-			}
+			wg.Add(1)
+
+			go func(ip string){
+
+				defer wg.Done()
+
+				if ping(ip) { // Если хост откликнулся
+					node, err := arp(ip)
+					if err == nil {
+						drawRow(file, node)
+					}
+				}
+
+			}(ip)
+
 		}
+
+		wg.Wait() // Ожидаем завершения горутин
+
 		drawSplitter(file)
 	}
-
 }
